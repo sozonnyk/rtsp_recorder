@@ -29,7 +29,7 @@ module RtspRecorder
 
     CONFIG.each do |camera_name, camera_options|
       FileUtils::mkdir_p(camera_options[:storage_dir])
-      FileUtils::mkdir_p(amera_options[:record_dir])
+      FileUtils::mkdir_p(camera_options[:record_dir])
 
       queue = FileListener.new(camera_name, camera_options[:record_dir]).start
       FileProcessor.new(queue, camera_options[:storage_dir]).start

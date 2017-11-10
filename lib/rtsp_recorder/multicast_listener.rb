@@ -17,6 +17,7 @@ module RtspRecorder
     end
 
     def run
+      puts "Start listening for multicast"
         ip = IPAddr.new(MULTICAST_ADDR).hton + IPAddr.new("0.0.0.0").hton
         sock = UDPSocket.new
         sock.setsockopt(Socket::IPPROTO_IP, Socket::IP_ADD_MEMBERSHIP, ip)

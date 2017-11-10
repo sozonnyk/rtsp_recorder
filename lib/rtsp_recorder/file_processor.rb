@@ -20,6 +20,7 @@ module RtspRecorder
     def run
       loop do
         file = queue.pop
+        puts file
         if file[:trigger] == '1'
           File.rename(file[:filename], "#{storage_dir}/#{filename(file[:start], file[:finish])}" )
         else

@@ -1,4 +1,5 @@
 require 'thread'
+require 'fileutils'
 
 module RtspRecorder
   class FileProcessor
@@ -20,12 +21,12 @@ module RtspRecorder
     def run
       loop do
         file = queue.pop
-        if file[:trigger] == '1'
+        if file[:trigger] == 'ON'
           puts "Store #{file[:filename]}"
-          File.rename(file[:filename], "#{storage_dir}/#{filename(file[:start], file[:finish])}" )
+          FileUtils.move(file[:filename], "#{storage_dir}/#{filename(file[:start], file[:finish])}" )
         else
           puts "Delete #{file[:filename]}"
-          File.delete(file[:filename])
+          FileUtils.rm_f(file[:filename])
         end
       end
     end

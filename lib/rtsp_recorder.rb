@@ -30,10 +30,17 @@ module RtspRecorder
     CONFIG.each do |camera_name, camera_options|
       FileUtils::mkdir_p(camera_options[:storage_dir])
       FileUtils::mkdir_p(camera_options[:record_dir])
+      FileUtils::rm_f(Dir.glob("#{camera_options[:record_dir]}/*"))
 
       queue = FileListener.new(camera_name, camera_options[:record_dir]).start
       FileProcessor.new(queue, camera_options[:storage_dir]).start
-      Recorder.new(camera_options[:record_dir],camera_options[:url]).start
+      Recorder.new(camera_options[:url], camera_options[:record_dir]).start
+    end
+
+    # Wait for all threads to end
+    Thread.list.each do |t|
+      # Wait for the thread to finish if it isn't this thread (i.e. the main thread).
+      t.join if t != Thread.current
     end
   end
 end

@@ -20,10 +20,11 @@ module RtspRecorder
     def run
       loop do
         file = queue.pop
-        puts file
         if file[:trigger] == '1'
+          puts "Store #{file[:filename]}"
           File.rename(file[:filename], "#{storage_dir}/#{filename(file[:start], file[:finish])}" )
         else
+          puts "Delete #{file[:filename]}"
           File.delete(file[:filename])
         end
       end

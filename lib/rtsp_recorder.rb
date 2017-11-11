@@ -66,7 +66,9 @@ module RtspRecorder
       multicast_listener.stop
       config['cameras'].each do |camera|
         camera[:recorder].stop
+        sleep(0.3)
         camera[:file_listener].stop
+        sleep(0.3)
         camera[:file_processor].stop
       end
     end

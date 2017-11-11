@@ -24,22 +24,45 @@ module RtspRecorder
     @@mutex ||= Mutex.new
   end
 
+  def test_trigger(trigger)
+    trigger == 'ON'
+  end
+
+  def config
+    @config ||= Psych.load_file(File.expand_path('../rtsp_recorder.yml', __FILE__))
+  end
+
   def self.start
-    MulticastListener.new.start
+    Thread.abort_on_exception=true
 
-    CONFIG.each do |camera_name, camera_options|
-      FileUtils::mkdir_p(camera_options[:storage_dir])
-      FileUtils::mkdir_p(camera_options[:record_dir])
-      FileUtils::rm_f(Dir.glob("#{camera_options[:record_dir]}/*"))
+    multicast_listener = MulticastListener.new.start
 
-      queue = FileListener.new(camera_name, camera_options[:record_dir]).start
-      FileProcessor.new(queue, camera_options[:storage_dir]).start
-      Recorder.new(camera_options[:url], camera_options[:record_dir]).start
+    config['cameras'].each do |camera|
+      camera_name = camera['name']
+      url = camera['url']
+      storage_dir = "#{camera['storage_dir']}/#{camera_name}"
+      record_dir = "#{camera['record_dir']}/#{camera_name}"
+      FileUtils::mkdir_p(storage_dir)
+      FileUtils::mkdir_p(record_dir)
+      FileUtils::rm_f(Dir.glob("#{record_dir}/*"))
+
+      file_listener = FileListener.new(camera_name, record_dir).start
+      camera[:file_listener] = file_listener
+      camera[:file_processor] = FileProcessor.new(file_listener.queue, storage_dir).start
+      camera[:recorder] = Recorder.new(url, record_dir).start
     end
 
-    # Wait for all threads to end
+    trap('INT') do
+      puts 'Shutting down'
+      multicast_listener.stop
+      config['cameras'].each do |camera|
+        camera[:recorder].stop
+        camera[:file_listener].stop
+        camera[:file_processor].stop
+      end
+    end
+
     Thread.list.each do |t|
-      # Wait for the thread to finish if it isn't this thread (i.e. the main thread).
       t.join if t != Thread.current
     end
   end

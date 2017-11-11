@@ -8,6 +8,7 @@ module RtspRecorder
 
     def initialize(camera_name, watch_dir)
       @camera_name, @watch_dir = camera_name, watch_dir
+      @queue = Queue.new
     end
 
     def full_filename(filename)
@@ -20,8 +21,11 @@ module RtspRecorder
       end
     end
 
+    def notifier
+      @notifier ||= INotify::Notifier.new
+    end
+
     def run
-        notifier = INotify::Notifier.new
         notifier.watch(watch_dir, :close_write, :create) do |event|
           puts "#{event.name} #{event.flags}"
           case
@@ -44,9 +48,11 @@ module RtspRecorder
     end
 
     def start
-      @queue = Queue.new
       Thread.new { run }
-      queue
+    end
+
+    def stop
+      notifier.stop
     end
 
   end

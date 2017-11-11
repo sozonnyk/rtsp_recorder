@@ -1,0 +1,7 @@
+---
+record_dir: /ram
+storage_dir: /mnt
+cameras:
+  - name: camera1
+    url: rtsp://camera1/unicast
+    trigger: sensor1

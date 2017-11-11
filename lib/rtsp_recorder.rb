@@ -5,6 +5,7 @@ require "rtsp_recorder/multicast_listener"
 require "rtsp_recorder/version"
 
 require "fileutils"
+require 'yaml'
 
 module RtspRecorder
 
@@ -24,32 +25,40 @@ module RtspRecorder
     @@mutex ||= Mutex.new
   end
 
-  def test_trigger(trigger)
+  def self.test_trigger(trigger)
     trigger == 'ON'
   end
 
-  def config
-    @config ||= Psych.load_file(File.expand_path('../rtsp_recorder.yml', __FILE__))
+  def self.config
+    @config ||= Psych.load_file(File.expand_path('../../rtsp_recorder.yml', __FILE__))
   end
 
   def self.start
     Thread.abort_on_exception=true
 
-    multicast_listener = MulticastListener.new.start
+    multicast_listener = MulticastListener.new
+    multicast_listener.start
 
     config['cameras'].each do |camera|
       camera_name = camera['name']
       url = camera['url']
-      storage_dir = "#{camera['storage_dir']}/#{camera_name}"
-      record_dir = "#{camera['record_dir']}/#{camera_name}"
+      storage_dir = "#{config['storage_dir']}/#{camera_name}"
+      record_dir = "#{config['record_dir']}/#{camera_name}"
       FileUtils::mkdir_p(storage_dir)
       FileUtils::mkdir_p(record_dir)
       FileUtils::rm_f(Dir.glob("#{record_dir}/*"))
 
-      file_listener = FileListener.new(camera_name, record_dir).start
+      file_listener = FileListener.new(camera_name, record_dir)
+      file_processor = FileProcessor.new(file_listener.queue, storage_dir)
+      recorder = Recorder.new(url, record_dir)
+
       camera[:file_listener] = file_listener
-      camera[:file_processor] = FileProcessor.new(file_listener.queue, storage_dir).start
-      camera[:recorder] = Recorder.new(url, record_dir).start
+      camera[:file_processor] = file_processor
+      camera[:recorder] = recorder
+
+      file_processor.start
+      file_listener.start
+      recorder.start
     end
 
     trap('INT') do

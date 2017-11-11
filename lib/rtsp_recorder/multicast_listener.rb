@@ -42,7 +42,7 @@ module RtspRecorder
         begin
           msg, info = sock.recvfrom_nonblock(1024)
         rescue IO::WaitReadable, IO::EAGAINWaitReadable
-          break if @stop
+          Thread.current.exit if @stop
           IO.select([sock])
           sleep(0.05)
           retry

@@ -12,9 +12,9 @@ module RtspRecorder
   def start
     puts "Start recording #{url} to #{record_dir}"
     cmd = %W(openRTSP -P 30 -F video -4 -c -B 10000000 -b 10000000 -H -w 1920 -h 1080 -f 15 -V #{url})
-    @stdin, @stdout, @stderr, wait_thr = Open3.popen3(cmd, chdir: record_dir)
+    @stdin, @stdout, @stderr, wait_thr = Open3.popen3(*cmd, chdir: record_dir)
     @pid = wait_thr[:pid]
-    puts "Rtarted, pid #{@pid}"
+    puts "Started, pid #{@pid}"
   end
 
    def stop

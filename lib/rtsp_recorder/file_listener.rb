@@ -53,6 +53,7 @@ module RtspRecorder
 
     def stop
       notifier.stop
+      Thread.current.exit
     end
 
   end

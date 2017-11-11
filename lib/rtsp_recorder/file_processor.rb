@@ -31,7 +31,7 @@ module RtspRecorder
             FileUtils.rm_f(file[:filename])
           end
         rescue ThreadError
-          break if @stop
+          Thread.current.exit if @stop
           sleep(0.05)
         end
       end

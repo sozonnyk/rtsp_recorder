@@ -5,11 +5,9 @@ require 'thread'
 module RtspRecorder
   class MulticastListener
 
-    MULTICAST_ADDR = "224.1.1.1"
-    PORT = 5007
-
     def initialize
       @stop = false
+      @log = RtspRecorder.log
     end
 
     def find_camera_name(trigger_name)
@@ -22,7 +20,7 @@ module RtspRecorder
       trigger_name, trigger_state = msg.split(',')
       camera_name = find_camera_name(trigger_name)
       unless camera_name
-        puts "Trigger #{trigger_name} doesn't have corresponding camera"
+        @log.debug "Trigger #{trigger_name} doesn't have corresponding camera"
         return
       end
       RtspRecorder.mutex.synchronize do
@@ -33,7 +31,7 @@ module RtspRecorder
     end
 
     def run
-      puts "Start listening for multicast"
+      @log.info "Start listening for multicast"
       ip = IPAddr.new(RtspRecorder.config['multicast_ip']).hton + IPAddr.new("0.0.0.0").hton
       sock = UDPSocket.new
       sock.setsockopt(Socket::IPPROTO_IP, Socket::IP_ADD_MEMBERSHIP, ip)
@@ -47,7 +45,7 @@ module RtspRecorder
           sleep(0.05)
           retry
         end
-        puts "MSG: #{msg} from #{info[2]} (#{info[3]})/#{info[1]}"
+        @log.debug "MSG: #{msg} from #{info[2]} (#{info[3]})/#{info[1]}"
         process_message(msg)
       end
     end

@@ -9,6 +9,7 @@ module RtspRecorder
     def initialize(queue, storage_dir)
       @queue, @storage_dir = queue, storage_dir
       @stop = false
+      @log = RtspRecorder.log
     end
 
     def format_time(time)
@@ -24,10 +25,10 @@ module RtspRecorder
         begin
           file = queue.pop(true)
           if RtspRecorder.test_trigger(file[:trigger])
-            puts "Store #{file[:filename]} to #{storage_dir}/#{filename(file[:start], file[:finish])} "
+            @log.info "Store #{file[:filename]} to #{storage_dir}/#{filename(file[:start], file[:finish])} "
             FileUtils.move(file[:filename], "#{storage_dir}/#{filename(file[:start], file[:finish])}" )
           else
-            puts "Delete #{file[:filename]}"
+            @log.info "Delete #{file[:filename]}"
             FileUtils.rm_f(file[:filename])
           end
         rescue ThreadError

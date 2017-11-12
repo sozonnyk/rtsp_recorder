@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'rb-inotify'
+  spec.add_dependency 'lumberjack'
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"

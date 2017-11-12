@@ -8,6 +8,7 @@ module RtspRecorder
     def initialize(url, record_dir)
       @url, @record_dir = url, record_dir
       @stop = false
+      @log = RtspRecorder.log
     end
 
     def count_files_size
@@ -23,14 +24,14 @@ module RtspRecorder
     end
 
     def start_rtsp
-      puts "Start recording #{url} to #{record_dir}"
+      @log.info "Start recording #{url} to #{record_dir}"
       cmd = %W(openRTSP -P 30 -F video -4 -c -B 10000000 -b 10000000 -H -w 1920 -h 1080 -f 15 -V #{url})
       @stdin, @stdout, @wait_thr = Open3.popen2e(*cmd, chdir: record_dir)
-      puts "Started, pid #{@wait_thr.pid}"
+      @log.debug "Started, pid #{@wait_thr.pid}"
     end
 
     def kill_rtsp
-      puts "Stop recording #{url}"
+      @log.info "Stop recording #{url}"
       begin
         Process.kill("HUP", @wait_thr.pid)
       rescue Errno::ESRCH
@@ -40,11 +41,11 @@ module RtspRecorder
     end
 
     def print_stdout
-      puts ' -------- openRTSP --------- '
+      @log.debug ' -------- openRTSP --------- '
       while line = @stdout.gets do
-        puts(line)
+        @log.debug(line)
       end
-      puts ' --------------------------- '
+      @log.debug ' --------------------------- '
     end
 
     def start
@@ -54,7 +55,7 @@ module RtspRecorder
         loop do
           unless rtsp_alive
             print_stdout
-            puts "Rtsp dead. Restarting."
+            @log.info "Rtsp dead. Restarting."
             kill_rtsp
             start_rtsp
             sleep(3)

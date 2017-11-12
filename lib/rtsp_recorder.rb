@@ -4,6 +4,7 @@ require "rtsp_recorder/file_processor"
 require "rtsp_recorder/multicast_listener"
 require "rtsp_recorder/version"
 
+require 'lumberjack'
 require "fileutils"
 require 'yaml'
 
@@ -31,6 +32,10 @@ module RtspRecorder
 
   def self.config
     @config ||= Psych.load_file(File.expand_path('../../rtsp_recorder.yml', __FILE__))
+  end
+
+  def self.log
+    @log ||= Lumberjack::Logger.new
   end
 
   def self.start
@@ -62,7 +67,7 @@ module RtspRecorder
     end
 
     trap('INT') do
-      puts 'Shutting down'
+      @log.info 'Shutting down'
       multicast_listener.stop
       config['cameras'].each do |camera|
         camera[:recorder].stop

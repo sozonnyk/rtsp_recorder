@@ -9,6 +9,7 @@ module RtspRecorder
     def initialize(camera_name, watch_dir)
       @camera_name, @watch_dir = camera_name, watch_dir
       @queue = Queue.new
+      @log = RtspRecorder.log
     end
 
     def full_filename(filename)
@@ -27,7 +28,7 @@ module RtspRecorder
 
     def run
         notifier.watch(watch_dir, :close_write, :create) do |event|
-          puts "#{event.name} #{event.flags}"
+          @log.debug "Event: #{event.name}, #{event.flags}"
           case
             when event.flags.include?(:create)
               update_file_registry do

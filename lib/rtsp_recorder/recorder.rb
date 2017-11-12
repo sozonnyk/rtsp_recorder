@@ -11,7 +11,7 @@ module RtspRecorder
     end
 
     def count_files_size
-      Dir.glob("#{record_dir}/*").reduce do |memo, file|
+      Dir.glob("#{record_dir}/*").reduce(0) do |memo, file|
         memo + (File.size?(file)||0)
       end
     end
@@ -19,7 +19,7 @@ module RtspRecorder
     def rtsp_alive
       initial_size = count_files_size
       sleep(0.3)
-      count_files_size != initial_size && @wait_thr.alive?
+      (count_files_size != initial_size) && @wait_thr.alive?
     end
 
     def start_rtsp
@@ -39,16 +39,29 @@ module RtspRecorder
       @stdout.close
     end
 
+    def print_stdout
+      puts ' -------- openRTSP --------- '
+      while line = @stdout.gets do
+        puts(line)
+      end
+      puts ' --------------------------- '
+    end
+
     def start
       start_rtsp
+      sleep(3)
       Thread.new do
-        unless rtsp_alive
-          puts "Rtsp dead. Restarting."
-          kill_rtsp
-          start_rtsp
+        loop do
+          unless rtsp_alive
+            print_stdout
+            puts "Rtsp dead. Restarting."
+            kill_rtsp
+            start_rtsp
+            sleep(3)
+          end
+          sleep(0.3)
+          Thread.exit if @stop
         end
-        sleep(0.3)
-        Thread.exit if @stop
       end
     end
 

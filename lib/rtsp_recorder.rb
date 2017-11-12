@@ -10,8 +10,6 @@ require 'yaml'
 
 module RtspRecorder
 
-  CONFIG = {'camera1' => {url: 'rtsp://camera/unicast', record_dir: '/ram/camera1', storage_dir: '/mnt/camera1'}}
-
   def self.file_registry
     #{camera_name => {filename: start: finish: trigger:}
     @@file_registry ||= {}
@@ -35,7 +33,7 @@ module RtspRecorder
   end
 
   def self.log
-    @log ||= Lumberjack::Logger.new
+    @log ||= Lumberjack::Logger.new(STDOUT, level: config.log_level )
   end
 
   def self.start
@@ -67,7 +65,6 @@ module RtspRecorder
     end
 
     trap('INT') do
-      @log.info 'Shutting down'
       multicast_listener.stop
       config['cameras'].each do |camera|
         camera[:recorder].stop

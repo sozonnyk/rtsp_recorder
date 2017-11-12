@@ -53,7 +53,7 @@ module RtspRecorder
       sleep(3)
       Thread.new do
         loop do
-          
+
           if @stop
             kill_rtsp
             Thread.exit

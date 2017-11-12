@@ -7,3 +7,5 @@ cameras:
   - name: camera1
     url: rtsp://camera/unicast
     trigger: sensor1
+
+log_level: debug

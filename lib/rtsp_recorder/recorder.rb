@@ -53,6 +53,12 @@ module RtspRecorder
       sleep(3)
       Thread.new do
         loop do
+          
+          if @stop
+            kill_rtsp
+            Thread.exit
+          end
+
           unless rtsp_alive
             print_stdout
             @log.info "Rtsp dead. Restarting."
@@ -60,8 +66,8 @@ module RtspRecorder
             start_rtsp
             sleep(3)
           end
+
           sleep(0.3)
-          Thread.exit if @stop
         end
       end
     end

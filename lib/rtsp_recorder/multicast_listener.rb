@@ -34,10 +34,10 @@ module RtspRecorder
 
     def run
       puts "Start listening for multicast"
-      ip = IPAddr.new(MULTICAST_ADDR).hton + IPAddr.new("0.0.0.0").hton
+      ip = IPAddr.new(RtspRecorder.config['multicast_ip']).hton + IPAddr.new("0.0.0.0").hton
       sock = UDPSocket.new
       sock.setsockopt(Socket::IPPROTO_IP, Socket::IP_ADD_MEMBERSHIP, ip)
-      sock.bind(Socket::INADDR_ANY, PORT)
+      sock.bind(Socket::INADDR_ANY, RtspRecorder.config['multicast_port'])
       loop do
         begin
           msg, info = sock.recvfrom_nonblock(1024)

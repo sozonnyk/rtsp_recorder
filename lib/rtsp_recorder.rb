@@ -33,7 +33,7 @@ module RtspRecorder
   end
 
   def self.log
-    @log ||= Lumberjack::Logger.new(STDOUT, level: config.log_level )
+    @log ||= Lumberjack::Logger.new(STDOUT, level: config['log_level'] )
   end
 
   def self.start

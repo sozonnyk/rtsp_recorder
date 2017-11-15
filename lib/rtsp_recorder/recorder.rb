@@ -19,8 +19,8 @@ module RtspRecorder
 
     def rtsp_alive
       initial_size = count_files_size
-      sleep(0.3)
-      (count_files_size != initial_size) && @wait_thr.alive?
+      sleep(0.5)
+      count_files_size != initial_size
     end
 
     def start_rtsp
@@ -50,24 +50,19 @@ module RtspRecorder
 
     def start
       start_rtsp
-      sleep(3)
+      sleep(5)
       Thread.new do
         loop do
-
           if @stop
             kill_rtsp
             Thread.exit
-          end
-
-          unless rtsp_alive
-            print_stdout
+          elsif !rtsp_alive
             @log.info "Rtsp dead. Restarting."
             kill_rtsp
             start_rtsp
-            sleep(3)
+            sleep(5)
           end
-
-          sleep(0.3)
+          sleep(0.5)
         end
       end
     end

@@ -1,11 +1,12 @@
 ---
 multicast_ip: 224.1.1.1
 multicast_port: 5007
-record_dir: /ram
-storage_dir: /mnt
+#record_dir: /ram
+#storage_dir: /mnt
 cameras:
   - name: camera1
     url: rtsp://camera/unicast
     trigger: sensor1
 
 log_level: debug
+#user: pi

@@ -34,6 +34,8 @@ module RtspRecorder
       @log.info "Stop recording #{url}"
       begin
         Process.kill("HUP", @wait_thr.pid)
+        sleep(0.5)
+        Process.kill("KILL", @wait_thr.pid)
       rescue Errno::ESRCH
       end
       @stdin.close

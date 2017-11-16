@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+require 'etc'
+require 'erb'
+require 'yaml'
+require 'open3'
+require 'fileutils'
+
+def erb(template_file, binding, output_file)
+  File.open(output_file, "w+") do |f|
+    f.write(ERB.new(File.read(template_file)).result(binding))
+  end
+end
+
+def drop_priv(user)
+  Process.initgroups(user.name, user.gid)
+  Process::Sys.setegid(user.gid)
+  Process::Sys.setgid(user.gid)
+  Process::Sys.setuid(user.uid)
+end
+
+def as_user(user)
+  unless pid = fork
+    drop_priv(user)
+    yield if block_given?
+    exit! 0
+  end
+  Process.wait(pid)
+end
+
+def app_dir
+  @app_dir ||= File.expand_path("#{File.dirname(__FILE__)}/..")
+end
+
+def config
+  @config ||= Psych.load_file("#{app_dir}/rtsp_recorder.yml")
+end
+
+def user
+  @user = Etc.getpwnam(config['user'] || Etc.getlogin)
+end
+
+def group
+  @group = Etc.getgrgid(user.gid)
+end
+
+def prepare_dir(dir_name)
+  FileUtils::mkdir_p(dir_name)
+  FileUtils.chown(user.name, group.name, dir_name)
+end
+
+unless Process.uid == 0
+  puts 'Run this with sudo'
+  exit! 1
+end
+
+exec('apt-get -y install bundler livemedia-utils inotify-tools')
+
+as_user(user) { Dir.chdir(app_dir){ exec('bundle install') }}
+
+storage_dir = config['storage_dir'] || "#{app_dir}/storage"
+record_dir = config['record_dir'] || "#{app_dir}/ram"
+
+prepare_dir(record_dir)
+prepare_dir(storage_dir)
+
+ram_size = '50m'
+erb("#{app_dir}/templates/ram_disk.service.erb", binding, '/etc/systemd/system/ram_disk.service')
+
+start_command = "#{app_dir}/bin/recorder"
+erb("#{app_dir}/templates/rtsp_recorder.service.erb", binding, '/etc/systemd/system/rtsp_recorder.service')
+
+exec('systemctl enable ram_disk')
+exec('systemctl enable rtsp_recorder')
+exec('systemctl start ram_disk')
+exec('systemctl start rtsp_recorder')

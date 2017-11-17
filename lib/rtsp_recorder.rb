@@ -45,10 +45,10 @@ module RtspRecorder
     config['cameras'].each do |camera|
       camera_name = camera['name']
       url = camera['url']
-      app_dir = File.expand_path("#{File.dirname(__FILE__)}/../..")
+      app_dir = File.expand_path("#{File.dirname(__FILE__)}/..")
 
       storage_dir = (config['storage_dir'] || "#{app_dir}/storage") + "/#{camera_name}"
-      record_dir = config['record_dir'] || "#{app_dir}/ram" + "/#{camera_name}"
+      record_dir = (config['record_dir'] || "#{app_dir}/ram") + "/#{camera_name}"
 
       FileUtils::mkdir_p(storage_dir)
       FileUtils::mkdir_p(record_dir)

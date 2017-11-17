@@ -25,10 +25,10 @@ module RtspRecorder
         begin
           file = queue.pop(true)
           if RtspRecorder.test_trigger(file[:trigger])
-            @log.info "Store #{file[:filename]} to #{storage_dir}/#{filename(file[:start], file[:finish])} "
+            @log.debug "Store #{file[:filename]} to #{storage_dir}/#{filename(file[:start], file[:finish])} "
             FileUtils.move(file[:filename], "#{storage_dir}/#{filename(file[:start], file[:finish])}" )
           else
-            @log.info "Delete #{file[:filename]}"
+            @log.debug "Delete #{file[:filename]}"
             FileUtils.rm_f(file[:filename])
           end
         rescue ThreadError

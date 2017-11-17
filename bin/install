@@ -66,7 +66,7 @@ prepare_dir(storage_dir)
 ram_size = '50m'
 erb("#{app_dir}/templates/ram_disk.service.erb", binding, '/etc/systemd/system/ram_disk.service')
 
-start_command = "#{app_dir}/bin/recorder"
+start_command = "./bin/recorder"
 erb("#{app_dir}/templates/rtsp_recorder.service.erb", binding, '/etc/systemd/system/rtsp_recorder.service')
 
 system('systemctl enable ram_disk')

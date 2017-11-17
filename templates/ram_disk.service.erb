@@ -2,8 +2,11 @@
 Description=RAM disk
 
 [Service]
-Type=oneshot
-ExecStart=mount -t tmpfs -o size=<%= ram_size %> tmpfs <%= record_dir %>
+Type=simple
+RemainAfterExit=yes
+ExecStart=/bin/sh -c "/bin/mountpoint -q <%= record_dir %> || /bin/mount -t tmpfs -o size=<%= ram_size %> tmpfs <%= record_dir %>"
+ExecStop=/bin/umount <%= record_dir %>
+
 
 [Install]
 WantedBy=multi-user.target

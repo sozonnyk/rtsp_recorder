@@ -47,11 +47,11 @@ module RtspRecorder
       url = camera['url']
       app_dir = File.expand_path("#{File.dirname(__FILE__)}/../..")
 
-      storage_dir = config['storage_dir'] || "#{app_dir}/storage"
-      record_dir = config['record_dir'] || "#{app_dir}/ram"
+      storage_dir = (config['storage_dir'] || "#{app_dir}/storage") + "/#{camera_name}"
+      record_dir = config['record_dir'] || "#{app_dir}/ram" + "/#{camera_name}"
 
-      FileUtils::mkdir_p("#{storage_dir}/#{camera_name}")
-      FileUtils::mkdir_p("#{record_dir}/#{camera_name}")
+      FileUtils::mkdir_p(storage_dir)
+      FileUtils::mkdir_p(record_dir)
       FileUtils::rm_f(Dir.glob("#{record_dir}/*"))
 
       file_listener = FileListener.new(camera_name, record_dir)

@@ -53,7 +53,7 @@ unless Process.uid == 0
   exit! 1
 end
 
-exec('apt-get -y install bundler livemedia-utils inotify-tools')
+system('apt-get -y install bundler livemedia-utils inotify-tools')
 
 as_user(user) { Dir.chdir(app_dir){ exec('bundle install') }}
 
@@ -69,7 +69,7 @@ erb("#{app_dir}/templates/ram_disk.service.erb", binding, '/etc/systemd/system/r
 start_command = "#{app_dir}/bin/recorder"
 erb("#{app_dir}/templates/rtsp_recorder.service.erb", binding, '/etc/systemd/system/rtsp_recorder.service')
 
-exec('systemctl enable ram_disk')
-exec('systemctl enable rtsp_recorder')
-exec('systemctl start ram_disk')
-exec('systemctl start rtsp_recorder')
+system('systemctl enable ram_disk')
+system('systemctl enable rtsp_recorder')
+system('systemctl start ram_disk')
+system('systemctl start rtsp_recorder')

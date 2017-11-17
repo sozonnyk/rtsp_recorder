@@ -41,6 +41,7 @@ module RtspRecorder
 
     multicast_listener = MulticastListener.new
     multicast_listener.start
+    config['multicast_listener'] = multicast_listener
 
     config['cameras'].each do |camera|
       camera_name = camera['name']
@@ -67,8 +68,8 @@ module RtspRecorder
       recorder.start
     end
 
-    def stop
-      multicast_listener.stop
+    def self.stop
+      config['multicast_listener'].stop
       config['cameras'].each do |camera|
         camera[:recorder].stop
         sleep(0.3)
@@ -79,11 +80,11 @@ module RtspRecorder
     end
 
     trap('INT') do
-      stop
+      RtspRecorder.stop
     end
 
     trap('TERM') do
-      stop
+      RtspRecorder.stop
     end
 
     Thread.list.each do |t|

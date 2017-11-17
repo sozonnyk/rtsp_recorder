@@ -1,6 +1,6 @@
 [Unit]
 Description=RTSP streams recodrer
-Requires=ram_disk.target
+Requires=ram_disk.service
 Wants=network-online.target
 After=network.target network-online.target
 

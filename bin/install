@@ -48,8 +48,8 @@ def prepare_dir(dir_name)
   FileUtils.chown(user.name, group.name, dir_name)
 end
 
-unless Process.uid == 0
-  puts 'Run this with sudo'
+unless Process.uid == 0 || user != 'root'
+  puts 'Run this as a regular user, with sudo'
   exit! 1
 end
 

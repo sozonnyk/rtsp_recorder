@@ -6,7 +6,7 @@ After=network.target network-online.target
 
 [Service]
 Type=simple
-ExecStart=su -c "bundle exec <%= start_command %>" <%= user.name %>
+ExecStart=/bin/su -c "bundle exec <%= start_command %>" <%= user.name %>
 
 [Install]
 WantedBy=multi-user.target

@@ -7,6 +7,7 @@ After=network.target network-online.target
 [Service]
 Type=simple
 ExecStart=/bin/su -c "cd <%= app_dir %> && bundle exec <%= start_command %>" <%= user.name %>
+TimeoutStopSec=5
 
 [Install]
 WantedBy=multi-user.target

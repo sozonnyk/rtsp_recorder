@@ -3,10 +3,10 @@ require 'open3'
 module RtspRecorder
   class Recorder
 
-    attr_accessor :url, :record_dir
+    attr_accessor :url, :record_dir, :video_seconds
 
-    def initialize(url, record_dir)
-      @url, @record_dir = url, record_dir
+    def initialize(url, record_dir, video_seconds)
+      @url, @record_dir, @video_seconds = url, record_dir, video_seconds
       @stop = false
       @log = RtspRecorder.log
     end
@@ -25,7 +25,7 @@ module RtspRecorder
 
     def start_rtsp
       @log.info "Start recording #{url} to #{record_dir}"
-      cmd = %W(openRTSP -P 30 -F video -4 -c -B 10000000 -b 10000000 -H -w 1920 -h 1080 -f 15 -V #{url})
+      cmd = %W(openRTSP -P 30 -F video -4 -c -B 10000000 -b 10000000 -H -w 1920 -h 1080 -f #{video_seconds} -V #{url})
       @stdin, @stdout, @wait_thr = Open3.popen2e(*cmd, chdir: record_dir)
       @log.debug "Started, pid #{@wait_thr.pid}"
     end

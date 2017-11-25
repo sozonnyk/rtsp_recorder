@@ -57,7 +57,7 @@ module RtspRecorder
 
       file_listener = FileListener.new(camera_name, record_dir)
       file_processor = FileProcessor.new(file_listener.queue, storage_dir)
-      recorder = Recorder.new(url, record_dir)
+      recorder = Recorder.new(url, record_dir, config['video_seconds'] || 15)
 
       camera[:file_listener] = file_listener
       camera[:file_processor] = file_processor

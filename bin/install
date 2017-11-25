@@ -48,7 +48,7 @@ def prepare_dir(dir_name)
   FileUtils.chown(user.name, group.name, dir_name)
 end
 
-unless Process.uid == 0 || user != 'root'
+unless Process.uid == 0 || user.name != 'root'
   puts 'Run this as a regular user, with sudo'
   exit! 1
 end
@@ -63,7 +63,7 @@ record_dir = config['record_dir'] || "#{app_dir}/ram"
 prepare_dir(record_dir)
 prepare_dir(storage_dir)
 
-ram_size = '50m'
+ram_size = config['record_dir_size'] || '50m'
 erb("#{app_dir}/templates/ram_disk.service.erb", binding, '/etc/systemd/system/ram_disk.service')
 
 start_command = "./bin/recorder"

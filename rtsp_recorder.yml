@@ -9,4 +9,7 @@ cameras:
     trigger: sensor1
 
 log_level: debug
-#user: pi
+user: pi
+record_dir_size: 50m
+storage_dir_limit: 10g
+video_seconds: 15
